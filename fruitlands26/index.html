@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>50-Mile Ride Training Tracker</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f8fafc;
+  color: #1f2937;
+  line-height: 1.5;
+  padding: 16px;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+.header {
+  background: linear-gradient(135deg, #2d8659 0%, #1f5f3e 100%);
+  color: white;
+  padding: 24px 28px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.header h1 { font-size: 22px; font-weight: 700; }
+.header .subtitle { font-size: 13px; opacity: 0.9; margin-top: 4px; }
+.countdown {
+  background: rgba(255,255,255,0.15);
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-align: right;
+  min-width: 140px;
+}
+.countdown .big { font-size: 32px; font-weight: 700; line-height: 1; }
+.countdown .label { font-size: 11px; text-transform: uppercase; opacity: 0.9; letter-spacing: 0.5px; margin-top: 4px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat {
+  background: white;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+.stat .num { font-size: 22px; font-weight: 700; color: #2d8659; }
+.stat .label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 22px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+}
+.card h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #6b7280;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card h2 .badge {
+  background: #2d8659;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.card h2 .badge.past { background: #94a3b8; }
+.card h2 .badge.upcoming { background: #f59e0b; }
+
+.week-info {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.week-num { font-size: 26px; font-weight: 700; color: #2d8659; }
+.week-dates { font-size: 14px; color: #6b7280; }
+.week-tag {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.week-tag.goal { background: #dcfce7; color: #166534; }
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+@media (max-width: 820px) {
+  .days { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .days { grid-template-columns: 1fr; }
+}
+.day {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+}
+.day.done {
+  background: #ecfdf5;
+  border-color: #2d8659;
+}
+.day.skip {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  opacity: 0.75;
+}
+.day .dow { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+.day .workout { font-size: 13px; font-weight: 600; margin-top: 6px; color: #1f2937; }
+.day .detail { font-size: 11px; color: #6b7280; margin-top: 4px; flex: 1; }
+.day .controls {
+  margin-top: 10px;
+  display: flex;
+  gap: 4px;
+}
+.btn {
+  flex: 1;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  color: #6b7280;
+  letter-spacing: 0.3px;
+}
+.btn:hover { background: #f3f4f6; }
+.btn.active.done { background: #2d8659; color: white; border-color: #2d8659; }
+.btn.active.skip { background: #ef4444; color: white; border-color: #ef4444; }
+
+.notes {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  margin-top: 14px;
+  resize: vertical;
+  min-height: 60px;
+  color: #1f2937;
+}
+
+.actual-miles {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.actual-miles input {
+  width: 58px;
+  padding: 3px 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.weeks-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+.weeks-table th, .weeks-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+.weeks-table th {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #6b7280;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: #f8fafc;
+}
+.weeks-table tbody tr { cursor: pointer; }
+.weeks-table tbody tr:hover { background: #f8fafc; }
+.weeks-table tr.current { background: #ecfdf5; font-weight: 600; }
+.weeks-table tr.current:hover { background: #d1fae5; }
+.weeks-table tr.past { color: #94a3b8; }
+.weeks-table .check { color: #2d8659; font-weight: 600; }
+
+.chart-container { position: relative; height: 280px; }
+
+.nutrition {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.nut-card {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  padding: 12px 14px;
+  border-radius: 6px;
+}
+.nut-card h3 { font-size: 11px; text-transform: uppercase; color: #92400e; margin-bottom: 6px; letter-spacing: 0.5px; font-weight: 700; }
+.nut-card p { font-size: 12.5px; color: #1f2937; }
+
+.week-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+}
+.week-nav button {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #1f2937;
+  font-family: inherit;
+}
+.week-nav button:hover:not(:disabled) { background: #f3f4f6; }
+.week-nav button:disabled { opacity: 0.4; cursor: not-allowed; }
+.week-nav .center { font-size: 12px; color: #6b7280; }
+
+.reset-row {
+  margin-top: 14px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.reset-row .data-btn {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #4b5563;
+  font-family: inherit;
+  font-weight: 500;
+}
+.reset-row .data-btn:hover { background: #f3f4f6; }
+.reset-row .data-btn.primary { background: #2d8659; color: white; border-color: #2d8659; }
+.reset-row .data-btn.primary:hover { background: #1f5f3e; }
+.reset-row a {
+  color: #94a3b8;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 11px;
+}
+
+.day .hint {
+  margin-top: 8px;
+  padding: 7px 9px;
+  background: #fff7ed;
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #92400e;
+  line-height: 1.4;
+}
+.day .alt {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #6b7280;
+  font-style: italic;
+}
+.day.travel {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  border-style: dashed;
+}
+.day.travel .workout::before {
+  content: '✈️ ';
+}
+.travel-banner {
+  background: #f0f9ff;
+  border-left: 4px solid #0284c7;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #075985;
+  margin-bottom: 14px;
+}
+.travel-banner strong { color: #0c4a6e; }
+
+.lock-banner {
+  background: #fef3c7;
+  border: 1px solid #fbbf24;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #92400e;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+body.locked .lock-banner { display: flex; }
+.lock-banner button.unlock {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.lock-banner button.unlock:hover { background: #d97706; }
+
+body.locked .day .controls { display: none; }
+body.locked .day .actual-miles input { display: none; }
+.actual-miles .miles-display { display: none; }
+body.locked .actual-miles .miles-display { display: inline; font-weight: 600; color: #1f2937; }
+body.locked .notes { display: none; }
+.notes-display { display: none; }
+body.locked .notes-display {
+  display: block;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #4b5563;
+  margin-top: 14px;
+  min-height: 36px;
+  white-space: pre-wrap;
+  border: 1px solid #e5e7eb;
+}
+body.locked .reset-row { display: none; }
+
+.lock-toggle {
+  font-size: 11px;
+  color: #94a3b8;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-left: 8px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>50-Mile Ride Training</h1>
+      <div class="subtitle">Sudbury → Harvard · 51.3 mi · 2,200 ft elevation</div>
+    </div>
+    <div class="countdown">
+      <div class="big" id="daysLeft">—</div>
+      <div class="label">Days to Sept 13</div>
+    </div>
+  </div>
+
+  <div class="lock-banner">
+    <span>🔒 <strong>View-only mode.</strong> Editing requires the passphrase.</span>
+    <button class="unlock" id="unlockBtn">Unlock to edit</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="weekNum">—</div><div class="label">Current Week</div></div>
+    <div class="stat"><div class="num" id="totalMiles">—</div><div class="label">Outdoor Miles Logged</div></div>
+    <div class="stat"><div class="num" id="completedRides">—</div><div class="label">Rides Completed</div></div>
+    <div class="stat"><div class="num" id="progressPct">—</div><div class="label">Through The Build</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span>This Week</span> <span class="badge" id="weekStatus">This week</span></h2>
+    <div class="week-info">
+      <span class="week-num" id="thisWeekNum">Week 1</span>
+      <span class="week-dates" id="thisWeekDates">—</span>
+      <span class="week-tag" id="thisWeekTag" style="display:none"></span>
+    </div>
+    <div class="days" id="daysGrid"></div>
+    <textarea class="notes" id="weekNotes" placeholder="Notes for this week — how the rides felt, weather, soreness, anything to remember…"></textarea>
+    <div class="notes-display" id="weekNotesDisplay"></div>
+    <div class="week-nav">
+      <button id="prevWeek">← Previous</button>
+      <span class="center" id="navLabel"></span>
+      <button id="nextWeek">Next →</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Long Ride Progression</h2>
+    <div class="chart-container"><canvas id="progressChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h2>Saturday Long Ride Nutrition</h2>
+    <div class="nutrition">
+      <div class="nut-card">
+        <h3>Night before</h3>
+        <p>Carb-forward dinner (rice / pasta / potatoes). Hydrate steadily. Skip alcohol if ride > 30 mi.</p>
+      </div>
+      <div class="nut-card">
+        <h3>2 hours before</h3>
+        <p>Oatmeal + banana + peanut butter + coffee. Add eggs once rides exceed 30 mi.</p>
+      </div>
+      <div class="nut-card">
+        <h3>On the bike</h3>
+        <p>Water only < 60 min. Electrolytes 60–90 min. ~200 cal/hr after 90 min. <strong>Eat before you're hungry.</strong></p>
+      </div>
+      <div class="nut-card">
+        <h3>First 30 min after</h3>
+        <p>3:1 carbs to protein. Chocolate milk + banana works. Real meal within 2 hours.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>All Weeks <span style="font-size:11px;font-weight:500;color:#94a3b8;text-transform:none;letter-spacing:0">(tap a row to view)</span></h2>
+    <table class="weeks-table" id="weeksTable">
+      <thead>
+        <tr><th>Wk</th><th>Dates</th><th>Wed</th><th>Sat</th><th>Tag</th><th>Status</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="reset-row">
+      <button class="data-btn primary" id="exportData">⬇ Export backup</button>
+      <button class="data-btn" id="importBtn">⬆ Import backup</button>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+      <a id="resetData">Reset all data</a>
+      <a id="lockBtn" class="lock-toggle">Lock</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<script>
+// ====================================================================
+// EDIT THIS LINE BEFORE PUBLISHING TO A PUBLIC URL.
+// Choose any passphrase you like. Keep the quotes around it.
+// This is light protection — it stops casual visitors from editing,
+// but is NOT real security. Anyone who views source can find this.
+// ====================================================================
+const EDIT_PASSPHRASE = 'harvard';
+// ====================================================================
+
+const GOAL_DATE = new Date('2026-09-13T00:00:00');
+const STORAGE_KEY = 'frutilands_50mi_tracker_v1';
+const LOCK_KEY = STORAGE_KEY + '_unlocked';
+
+const plan = [
+  { num: 1,  start: '2026-05-17', end: '2026-05-23', wed: 6,  sat: 12, tag: '',
+    travel: { days: ['wed','thu'], label: 'Delaware — son pickup' },
+    note: 'Quick AM Peloton Wed before driving. Outdoor Thu evening if back in time (optional).',
+    overrides: {
+      wed: { title: 'Quick AM Peloton', detail: '30–45 min before drive', track: false },
+      thu: { title: 'Outdoor if home in time', detail: 'Evening, optional', track: false }
+    }
+  },
+  { num: 2,  start: '2026-05-24', end: '2026-05-30', wed: 8,  sat: 14, tag: '' },
+  { num: 3,  start: '2026-05-31', end: '2026-06-06', wed: 10, sat: 16, tag: '' },
+  { num: 4,  start: '2026-06-07', end: '2026-06-13', wed: 8,  sat: 12, tag: 'Cutback' },
+  { num: 5,  start: '2026-06-14', end: '2026-06-20', wed: 10, sat: 18, tag: '' },
+  { num: 6,  start: '2026-06-21', end: '2026-06-27', wed: 12, sat: 22, tag: '' },
+  { num: 7,  start: '2026-06-28', end: '2026-07-04', wed: 14, sat: 26, tag: '' },
+  { num: 8,  start: '2026-07-05', end: '2026-07-11', wed: 10, sat: 18, tag: 'Cutback' },
+  { num: 9,  start: '2026-07-12', end: '2026-07-18', wed: 15, sat: 28, tag: '' },
+  { num: 10, start: '2026-07-19', end: '2026-07-25', wed: 16, sat: 32, tag: '',
+    travel: { days: ['wed','thu','fri','sat'], label: 'Petaluma, CA (no bike)' },
+    note: 'Long ride MOVED to Sun 7/19 (before travel). Tue is your last workout before 6 days off.',
+    overrides: {
+      sun: { title: 'LONG RIDE 32 mi', detail: 'Moved from Sat — do before travel', track: true, target: 32 },
+      sat: { title: 'Petaluma (no bike)', detail: 'Travel — rest day', track: false }
+    }
+  },
+  { num: 11, start: '2026-07-26', end: '2026-08-01', wed: 10, sat: 28, tag: 'Re-entry',
+    travel: { days: ['sun','mon','tue'], label: 'Petaluma return (back 7/28)' },
+    note: 'Reduced from planned 18/36 → 10/28 to ease back in after 6 days off.',
+    overrides: {
+      sun: { title: 'Petaluma (no bike)', detail: 'Travel', track: false },
+      mon: { title: 'Petaluma — no basketball', detail: 'Travel', track: false },
+      tue: { title: 'Fly home', detail: 'Travel day', track: false }
+    }
+  },
+  { num: 12, start: '2026-08-02', end: '2026-08-08', wed: 12, sat: 25, tag: 'Cutback' },
+  { num: 13, start: '2026-08-09', end: '2026-08-15', wed: 20, sat: 40, tag: '' },
+  { num: 14, start: '2026-08-16', end: '2026-08-22', wed: 20, sat: 45, tag: '',
+    travel: { days: ['sun','mon','tue','wed'], label: 'Chicago conference (Hilton)' },
+    note: 'Hotel Peloton/spin bike Tue if available. Skip Mon basketball + Wed outdoor. Sat long ride happens.',
+    overrides: {
+      sun: { title: 'Travel to Chicago', detail: 'Hilton Chicago', track: false },
+      mon: { title: 'Chicago — no basketball', detail: 'Hotel gym if time', track: false },
+      tue: { title: 'Hotel Peloton/spin', detail: '45 min Z2 if available', track: false },
+      wed: { title: 'Travel home', detail: 'Back Thursday evening', track: false }
+    }
+  },
+  { num: 15, start: '2026-08-23', end: '2026-08-29', wed: 15, sat: 50, tag: 'Dress rehearsal' },
+  { num: 16, start: '2026-08-30', end: '2026-09-05', wed: 12, sat: 30, tag: 'Taper' },
+  { num: 17, start: '2026-09-06', end: '2026-09-13', wed: 10, sat: 51, tag: 'GOAL RIDE' },
+];
+
+function dayWorkouts(w) {
+  const isGoal = w.tag === 'GOAL RIDE';
+  const base = [
+    { id: 'mon', dow: 'Mon', title: 'Basketball', detail: '1–2 hr full court' },
+    { id: 'tue', dow: 'Tue', title: 'Peloton easy', detail: '45 min Z1–Z2 + lower strength', alt: 'Short on time? 30 min is fine — Tuesday is the one you can shorten.' },
+    { id: 'wed', dow: 'Wed', title: `Outdoor ${w.wed} mi`, detail: 'Steady conversational pace', track: true, target: w.wed },
+    { id: 'thu', dow: 'Thu', title: 'Peloton intervals', detail: '45 min PZ/climb + upper strength', alt: 'Keep this one at 45 — protects threshold power.' },
+    { id: 'fri', dow: 'Fri', title: 'Strength', detail: 'Upper body or rest' },
+    { id: 'sat', dow: 'Sat', title: isGoal ? `Short spin` : `Long ride ${w.sat} mi`, detail: isGoal ? 'Light pre-race spin, 15 min' : 'Conversational pace, fuel after 90 min', track: !isGoal, target: w.sat },
+    { id: 'sun', dow: 'Sun', title: isGoal ? '🎯 GOAL RIDE 51 mi' : 'Rest', detail: isGoal ? 'Sudbury → Harvard loop' : 'Walk or mobility', track: isGoal, target: 51 },
+  ];
+  if (w.overrides) {
+    return base.map(d => w.overrides[d.id] ? { ...d, ...w.overrides[d.id], alt: undefined } : d);
+  }
+  return base;
+}
+
+function computeHints(ws) {
+  const h = {};
+  if (ws.workouts?.mon === 'skip') {
+    h.tue = '💡 Basketball skipped — swap today\'s easy spin for a 45-min Power Zone or interval class. Legs are fresh.';
+  }
+  if (ws.workouts?.wed === 'skip') {
+    h.fri = '💡 Wednesday outdoor missed — make today the midweek ride instead of strength (push strength to Thursday or skip).';
+  }
+  if (ws.workouts?.sat === 'skip') {
+    h.sun = '💡 Saturday long ride missed — try to fit it in today, even if shorter. Or accept the miss and slot back into next week.';
+  }
+  if (ws.workouts?.thu === 'skip' && ws.workouts?.mon === 'skip') {
+    h.tue = '💡 No intensity this week (basketball + intervals both skipped). Make today\'s Peloton hard — 45 min PZ or climb class.';
+  }
+  return h;
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+function todayWeekNum() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (const w of plan) {
+    const s = new Date(w.start + 'T00:00:00');
+    const e = new Date(w.end + 'T23:59:59');
+    if (today >= s && today <= e) return w.num;
+  }
+  if (today < new Date(plan[0].start + 'T00:00:00')) return 1;
+  return 17;
+}
+
+let viewWeek = todayWeekNum();
+let state = loadState();
+
+function getWeekState(num) {
+  if (!state[num]) state[num] = { workouts: {}, notes: '', actualMiles: {} };
+  if (!state[num].workouts) state[num].workouts = {};
+  if (!state[num].actualMiles) state[num].actualMiles = {};
+  return state[num];
+}
+
+function fmtDates(w) {
+  const opts = { month: 'short', day: 'numeric' };
+  const s = new Date(w.start + 'T00:00:00').toLocaleDateString('en-US', opts);
+  const e = new Date(w.end + 'T00:00:00').toLocaleDateString('en-US', opts);
+  return `${s} – ${e}`;
+}
+
+function renderCountdown() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.ceil((GOAL_DATE - today) / (1000*60*60*24));
+  document.getElementById('daysLeft').textContent = diff > 0 ? diff : (diff === 0 ? 'GO!' : '✓');
+}
+
+function renderStats() {
+  const todayWk = todayWeekNum();
+  let totalMiles = 0;
+  let completed = 0;
+  for (const w of plan) {
+    const ws = state[w.num];
+    if (!ws) continue;
+    ['wed','sat','sun'].forEach(d => {
+      if (ws.actualMiles?.[d]) totalMiles += parseFloat(ws.actualMiles[d]) || 0;
+      if (ws.workouts?.[d] === 'done') completed++;
+    });
+  }
+  document.getElementById('weekNum').textContent = `${todayWk} / 17`;
+  document.getElementById('totalMiles').textContent = totalMiles.toFixed(0);
+  document.getElementById('completedRides').textContent = completed;
+  document.getElementById('progressPct').textContent = `${Math.round((todayWk-1)/17*100)}%`;
+}
+
+function renderWeek() {
+  const w = plan[viewWeek - 1];
+  const ws = getWeekState(w.num);
+  const todayWk = todayWeekNum();
+
+  const statusEl = document.getElementById('weekStatus');
+  if (viewWeek === todayWk) { statusEl.textContent = 'This week'; statusEl.className = 'badge'; }
+  else if (viewWeek < todayWk) { statusEl.textContent = 'Past'; statusEl.className = 'badge past'; }
+  else { statusEl.textContent = 'Upcoming'; statusEl.className = 'badge upcoming'; }
+
+  document.getElementById('thisWeekNum').textContent = `Week ${w.num}`;
+  document.getElementById('thisWeekDates').textContent = fmtDates(w);
+  const tagEl = document.getElementById('thisWeekTag');
+  if (w.tag) {
+    tagEl.textContent = w.tag;
+    tagEl.style.display = '';
+    tagEl.className = 'week-tag' + (w.tag === 'GOAL RIDE' ? ' goal' : '');
+  } else tagEl.style.display = 'none';
+
+  let bannerEl = document.getElementById('travelBanner');
+  if (!bannerEl) {
+    bannerEl = document.createElement('div');
+    bannerEl.id = 'travelBanner';
+    document.getElementById('daysGrid').parentNode.insertBefore(bannerEl, document.getElementById('daysGrid'));
+  }
+  if (w.travel) {
+    bannerEl.className = 'travel-banner';
+    bannerEl.innerHTML = `<strong>✈️ ${w.travel.label}</strong>${w.note ? ' · ' + w.note : ''}`;
+    bannerEl.style.display = '';
+  } else {
+    bannerEl.style.display = 'none';
+  }
+
+  const grid = document.getElementById('daysGrid');
+  grid.innerHTML = '';
+  const hints = computeHints(ws);
+  const travelDays = w.travel?.days || [];
+  for (const d of dayWorkouts(w)) {
+    const status = ws.workouts[d.id];
+    const isTravel = travelDays.includes(d.id);
+    const dayDiv = document.createElement('div');
+    dayDiv.className = 'day' + (isTravel ? ' travel' : '') + (status === 'done' ? ' done' : status === 'skip' ? ' skip' : '');
+    dayDiv.innerHTML = `
+      <div class="dow">${d.dow}</div>
+      <div class="workout">${d.title}</div>
+      <div class="detail">${d.detail}</div>
+      ${d.alt ? `<div class="alt">${d.alt}</div>` : ''}
+      <div class="controls">
+        <button class="btn ${status === 'done' ? 'active done' : ''}" data-day="${d.id}" data-status="done">Done</button>
+        <button class="btn ${status === 'skip' ? 'active skip' : ''}" data-day="${d.id}" data-status="skip">Skip</button>
+      </div>
+      ${d.track ? `<div class="actual-miles">Actual <span class="miles-display">${ws.actualMiles[d.id] ? ws.actualMiles[d.id] + ' mi' : '—'}</span><input type="number" min="0" step="0.1" data-day="${d.id}" value="${ws.actualMiles[d.id] || ''}" placeholder="${d.target}"> mi</div>` : ''}
+      ${hints[d.id] ? `<div class="hint">${hints[d.id]}</div>` : ''}
+    `;
+    grid.appendChild(dayDiv);
+  }
+
+  document.getElementById('weekNotes').value = ws.notes || '';
+  document.getElementById('weekNotesDisplay').textContent = ws.notes || '— No notes for this week —';
+  document.getElementById('prevWeek').disabled = viewWeek <= 1;
+  document.getElementById('nextWeek').disabled = viewWeek >= 17;
+  document.getElementById('navLabel').textContent = `Week ${viewWeek} of 17`;
+
+  grid.querySelectorAll('.btn').forEach(b => {
+    b.addEventListener('click', () => {
+      const cur = ws.workouts[b.dataset.day];
+      ws.workouts[b.dataset.day] = cur === b.dataset.status ? null : b.dataset.status;
+      saveState(state);
+      renderWeek();
+      renderStats();
+      renderTable();
+      renderChart();
+    });
+  });
+  grid.querySelectorAll('input[type=number]').forEach(i => {
+    i.addEventListener('change', () => {
+      ws.actualMiles[i.dataset.day] = i.value;
+      saveState(state);
+      renderStats();
+      renderChart();
+    });
+  });
+}
+
+function renderTable() {
+  const tbody = document.querySelector('#weeksTable tbody');
+  tbody.innerHTML = '';
+  const todayWk = todayWeekNum();
+  for (const w of plan) {
+    const ws = state[w.num] || { workouts: {} };
+    const tr = document.createElement('tr');
+    if (w.num === todayWk) tr.className = 'current';
+    else if (w.num < todayWk) tr.className = 'past';
+    const wedDone = ws.workouts?.wed === 'done';
+    const satDone = ws.workouts?.sat === 'done' || ws.workouts?.sun === 'done';
+    const status = wedDone && satDone ? '<span class="check">✓ Both</span>' :
+                   wedDone || satDone ? '<span class="check">✓ 1/2</span>' : '';
+    tr.innerHTML = `
+      <td><strong>${w.num}</strong></td>
+      <td>${fmtDates(w)}</td>
+      <td>${w.wed} mi</td>
+      <td><strong>${w.sat} mi</strong></td>
+      <td>${w.tag || ''}</td>
+      <td>${status}</td>
+    `;
+    tr.addEventListener('click', () => {
+      viewWeek = w.num;
+      renderWeek();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    tbody.appendChild(tr);
+  }
+}
+
+let chart;
+function renderChart() {
+  const ctx = document.getElementById('progressChart').getContext('2d');
+  const labels = plan.map(w => `W${w.num}`);
+  const planned = plan.map(w => w.sat);
+  const actual = plan.map(w => {
+    const ws = state[w.num];
+    const sat = parseFloat(ws?.actualMiles?.sat) || 0;
+    const sun = parseFloat(ws?.actualMiles?.sun) || 0;
+    const val = sat + sun;
+    return val > 0 ? val : null;
+  });
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Planned long ride (mi)', data: planned, borderColor: '#94a3b8', backgroundColor: 'rgba(148,163,184,0.15)', borderDash: [5,5], tension: 0.3, pointRadius: 3 },
+        { label: 'Actual (mi)', data: actual, borderColor: '#2d8659', backgroundColor: 'rgba(45,134,89,0.15)', tension: 0.3, pointRadius: 5, pointBackgroundColor: '#2d8659', spanGaps: true },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'Miles' } } }
+    }
+  });
+}
+
+document.getElementById('prevWeek').addEventListener('click', () => { if (viewWeek > 1) { viewWeek--; renderWeek(); }});
+document.getElementById('nextWeek').addEventListener('click', () => { if (viewWeek < 17) { viewWeek++; renderWeek(); }});
+document.getElementById('weekNotes').addEventListener('input', (e) => {
+  getWeekState(viewWeek).notes = e.target.value;
+  saveState(state);
+});
+document.getElementById('resetData').addEventListener('click', () => {
+  if (confirm('Erase all logged workouts, miles, and notes? This cannot be undone.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    state = {};
+    renderWeek(); renderStats(); renderTable(); renderChart();
+  }
+});
+
+document.getElementById('exportData').addEventListener('click', () => {
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    storageKey: STORAGE_KEY,
+    data: state,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `training-tracker-backup-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      const imported = parsed.data || parsed;
+      if (typeof imported !== 'object' || imported === null) {
+        throw new Error('File does not contain valid tracker data.');
+      }
+      const summary = Object.keys(imported).length + ' weeks of data';
+      if (confirm(`Replace current tracker with imported data (${summary})?\n\nCurrent progress will be overwritten. This cannot be undone.`)) {
+        state = imported;
+        saveState(state);
+        renderWeek(); renderStats(); renderTable(); renderChart();
+        alert('Backup imported successfully.');
+      }
+    } catch (err) {
+      alert('Could not import file: ' + err.message);
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+function isUnlocked() { return localStorage.getItem(LOCK_KEY) === '1'; }
+function applyLockState() {
+  document.body.classList.toggle('locked', !isUnlocked());
+}
+function attemptUnlock() {
+  const entered = prompt('Enter passphrase to enable editing:');
+  if (entered === null || entered === '') return;
+  if (entered === EDIT_PASSPHRASE) {
+    localStorage.setItem(LOCK_KEY, '1');
+    applyLockState();
+    renderWeek();
+  } else {
+    alert('Incorrect passphrase.');
+  }
+}
+function lockEditing() {
+  if (!confirm('Lock the tracker (return to view-only mode)?')) return;
+  localStorage.removeItem(LOCK_KEY);
+  applyLockState();
+  renderWeek();
+}
+
+document.getElementById('unlockBtn').addEventListener('click', attemptUnlock);
+document.getElementById('lockBtn').addEventListener('click', lockEditing);
+
+applyLockState();
+renderCountdown();
+renderStats();
+renderWeek();
+renderTable();
+renderChart();
+</script>
+</body>
+</html>

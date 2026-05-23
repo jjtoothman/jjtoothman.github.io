@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LRP — Album Cover Template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #000000;
+    --ink-soft: #1A1A1A;
+    --paper: #FFFFFF;
+    --paper-warm: #F5F0EB;
+    --paper-warm-alt: #F2EDE5;
+    --lrp-red: #C84B2F;
+    --lrp-red-soft: #E8A79B;
+    --atlas: #0E4F58;
+    --atlas-soft: #7AA0A6;
+    --slate: #5A5A5A;
+    --slate-light: #B8B2A8;
+    --mid-gray: #888888;
+    --rule: rgba(0,0,0,0.10);
+
+    --display: 'Oswald', 'Barlow Condensed', sans-serif;
+    --editorial: 'DM Serif Display', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    background: var(--paper-warm);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Top bar */
+  .topbar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .topbar h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    font-size: 22px;
+  }
+  .topbar h1 .red { color: var(--lrp-red); }
+  .topbar .meta {
+    font-family: var(--sans);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--slate-light);
+  }
+  .topbar .meta strong { color: var(--paper); font-weight: 600; }
+
+  /* App layout */
+  .app {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    min-height: calc(100vh - 64px);
+  }
+
+  /* Controls panel */
+  .controls {
+    background: var(--paper);
+    border-right: 1px solid var(--rule);
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(100vh - 64px);
+  }
+  .controls h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--lrp-red);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls h2:not(:first-child) { margin-top: 32px; }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .field input[type="text"],
+  .field input[type="number"],
+  .field textarea,
+  .field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--mid-gray);
+    background: var(--paper);
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    border-radius: 4px;
+    transition: border-color 200ms;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    outline: none;
+    border-color: var(--lrp-red);
+    border-width: 2px;
+    padding: 9px 11px;
+  }
+  .field textarea { resize: vertical; min-height: 70px; font-family: var(--sans); }
+  .field .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .field .help {
+    font-size: 11px;
+    color: var(--slate);
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+
+  /* Radio chip groups */
+  .chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .chips label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    color: var(--ink);
+    border-radius: 4px;
+    margin: 0;
+    transition: all 150ms;
+  }
+  .chips label:hover { border-color: var(--ink); }
+  .chips input[type="radio"] { display: none; }
+  .chips input[type="radio"]:checked + .chip-content {
+    color: var(--lrp-red);
+    font-weight: 600;
+  }
+  .chips label:has(input:checked) {
+    border-color: var(--lrp-red);
+    border-width: 2px;
+    padding: 9px 11px;
+    background: rgba(200,75,47,0.04);
+  }
+  .chips .swatch-dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+  }
+
+  /* Toggle */
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .toggle input[type="checkbox"] {
+    width: 36px; height: 20px;
+    appearance: none;
+    background: var(--mid-gray);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 200ms;
+  }
+  .toggle input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: var(--paper);
+    border-radius: 50%;
+    transition: transform 200ms;
+  }
+  .toggle input[type="checkbox"]:checked { background: var(--lrp-red); }
+  .toggle input[type="checkbox"]:checked::after { transform: translateX(16px); }
+  .toggle label {
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  /* Preview area */
+  .stage {
+    background:
+      linear-gradient(45deg, rgba(0,0,0,0.025) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.025) 75%, rgba(0,0,0,0.025)),
+      linear-gradient(45deg, rgba(0,0,0,0.025) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.025) 75%, rgba(0,0,0,0.025)),
+      var(--paper-warm-alt);
+    background-position: 0 0, 12px 12px;
+    background-size: 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 40px;
+    overflow-y: auto;
+    max-height: calc(100vh - 64px);
+  }
+  .stage .preview-frame {
+    background: var(--paper);
+    padding: 32px;
+    border: 1px solid var(--rule);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.10);
+    margin-bottom: 24px;
+  }
+  .stage svg { display: block; width: min(640px, 70vh); height: auto; }
+  .stage .stage-meta {
+    font-family: var(--sans);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--slate);
+    margin-bottom: 16px;
+  }
+
+  /* Export bar */
+  .exportbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .btn {
+    appearance: none;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    padding: 12px 18px;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 150ms;
+    min-height: 44px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.primary { background: var(--ink); color: var(--paper); }
+  .btn.primary:hover { background: var(--lrp-red); border-color: var(--lrp-red); }
+  .btn.ghost { border-color: var(--mid-gray); color: var(--slate); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .status {
+    text-align: center;
+    font-size: 12px;
+    color: var(--slate);
+    min-height: 18px;
+    margin-top: 12px;
+  }
+  .status.error { color: var(--lrp-red); font-weight: 600; }
+
+  @media (max-width: 980px) {
+    .app { grid-template-columns: 1fr; }
+    .controls { max-height: none; border-right: none; border-bottom: 1px solid var(--rule); }
+    .stage { max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>LRP <span class="red">/</span> Album Cover Template</h1>
+  <div class="meta"><strong>2400×2400</strong> &nbsp; export-ready &nbsp;/&nbsp; v1.0</div>
+</div>
+
+<div class="app">
+
+  <!-- ============ CONTROLS ============ -->
+  <aside class="controls">
+
+    <h2>Project</h2>
+    <div class="field">
+      <label for="f-title">Project name</label>
+      <input id="f-title" type="text" value="GROUNDHOGG" maxlength="40" />
+      <p class="help">All-caps recommended. The wordmark is the loudest type on the cover.</p>
+    </div>
+    <div class="field">
+      <label for="f-tagline">Tagline (optional, used in Two-tone wordmark)</label>
+      <input id="f-tagline" type="text" value="" placeholder="e.g., A WORDPRESS CRM" />
+    </div>
+
+    <h2>Serial Number</h2>
+    <div class="field">
+      <div class="row">
+        <div>
+          <label for="f-serial-num">LRP ####</label>
+          <input id="f-serial-num" type="text" value="0042" maxlength="5" />
+        </div>
+        <div>
+          <label for="f-serial-cat">Category</label>
+          <select id="f-serial-cat">
+            <option>CASE STUDY</option>
+            <option>WHITE PAPER</option>
+            <option>LP</option>
+            <option>45</option>
+            <option>LIVE SESSION</option>
+          </select>
+        </div>
+        <div>
+          <label for="f-serial-mod">Modifier</label>
+          <select id="f-serial-mod">
+            <option>STEREO</option>
+            <option>MONO</option>
+            <option>REISSUE</option>
+            <option>LIVE</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <h2>Color Composition</h2>
+    <div class="field">
+      <div class="chips" id="f-palette">
+        <label><input type="radio" name="palette" value="ink" checked /><span class="chip-content"><span class="swatch-dot" style="background:#000"></span> Ink Classic</span></label>
+        <label><input type="radio" name="palette" value="red" /><span class="chip-content"><span class="swatch-dot" style="background:#C84B2F"></span> Red Signal</span></label>
+        <label><input type="radio" name="palette" value="atlas" /><span class="chip-content"><span class="swatch-dot" style="background:#0E4F58"></span> Atlas Cool</span></label>
+        <label><input type="radio" name="palette" value="warm" /><span class="chip-content"><span class="swatch-dot" style="background:#F5F0EB; border-color:#888"></span> Warm Field</span></label>
+      </div>
+    </div>
+
+    <h2>Wordmark Style</h2>
+    <div class="field">
+      <div class="chips" id="f-wordmark">
+        <label><input type="radio" name="wordmark" value="bold" checked /><span class="chip-content">Bold Compressed</span></label>
+        <label><input type="radio" name="wordmark" value="serif" /><span class="chip-content">Editorial Serif</span></label>
+        <label><input type="radio" name="wordmark" value="split" /><span class="chip-content">Two-tone Split</span></label>
+      </div>
+    </div>
+
+    <h2>Imagery Treatment</h2>
+    <div class="field">
+      <div class="chips" id="f-imagery">
+        <label><input type="radio" name="imagery" value="opart" checked /><span class="chip-content">Op-Art Checkerboard</span></label>
+        <label><input type="radio" name="imagery" value="halftone" /><span class="chip-content">Halftone Gradient</span></label>
+        <label><input type="radio" name="imagery" value="silhouette" /><span class="chip-content">Silhouette</span></label>
+        <label><input type="radio" name="imagery" value="solid" /><span class="chip-content">Solid Field</span></label>
+        <label><input type="radio" name="imagery" value="upload" /><span class="chip-content">Upload Image</span></label>
+        <label><input type="radio" name="imagery" value="arrow" /><span class="chip-content">Arrow Mark</span></label>
+        <label><input type="radio" name="imagery" value="duotone-photo" /><span class="chip-content">Duotone Photo</span></label>
+        <label><input type="radio" name="imagery" value="credit-grid" /><span class="chip-content">Credit Grid</span></label>
+        <label><input type="radio" name="imagery" value="type-as-art" /><span class="chip-content">Type-as-Art</span></label>
+        <label><input type="radio" name="imagery" value="concentric" /><span class="chip-content">Concentric Circles</span></label>
+        <label><input type="radio" name="imagery" value="diagonal" /><span class="chip-content">Diagonal Bands</span></label>
+        <label><input type="radio" name="imagery" value="rays" /><span class="chip-content">Radiating Rays</span></label>
+      </div>
+      <p class="help" id="imagery-help" style="margin-top: 6px;">Op-Art is the default — ranged-color checkerboard, Sam Rivers register.</p>
+    </div>
+    <div class="field" id="upload-field" style="display:none;">
+      <label for="f-upload">Upload artwork (square recommended)</label>
+      <input id="f-upload" type="file" accept="image/*" />
+      <p class="help">JPG/PNG/SVG. Image fills the artwork zone, cropped to fit. For Duotone Photo, the upload is auto-converted to a two-color treatment using the current palette.</p>
+    </div>
+    <div class="field" id="credits-field" style="display:none;">
+      <label for="f-credits">Credit grid (one per line, format: LABEL · VALUE)</label>
+      <textarea id="f-credits" rows="8" style="font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px;">PRODUCED BY · LONE ROCK POINT
+DESIGN · STUDIO TEAM
+STRATEGY · BRAND COUNCIL
+STACK · WORDPRESS · REACT
+SECTOR · PUBLIC INFRA
+DURATION · 18 WEEKS
+YEAR · 2026
+LOCATION · BURLINGTON, VT</textarea>
+      <p class="help">Mid-century modern poster register. Two-column tracked uppercase, dense and structural. Up to 12 lines.</p>
+    </div>
+
+    <h2>Footer Band</h2>
+    <div class="toggle">
+      <input id="f-footer-on" type="checkbox" />
+      <label for="f-footer-on">Show footer with sidemen / credits</label>
+    </div>
+    <div class="field" id="footer-field" style="display:none; margin-top: 12px;">
+      <label for="f-sidemen">Sidemen (one per line, max 6)</label>
+      <textarea id="f-sidemen" placeholder="JOHN COLLABORATOR · LEAD&#10;JANE PARTNER · STRATEGY&#10;ACME CO · CLIENT"></textarea>
+    </div>
+
+  </aside>
+
+  <!-- ============ STAGE ============ -->
+  <main class="stage">
+
+    <div class="stage-meta">Live preview · 1:1 · Square</div>
+
+    <div class="preview-frame">
+      <svg id="cover" viewBox="0 0 2400 2400" xmlns="http://www.w3.org/2000/svg">
+        <!-- Filled by render() -->
+      </svg>
+    </div>
+
+    <div class="exportbar">
+      <button class="btn primary" id="btn-png-2400">Export PNG · 2400</button>
+      <button class="btn" id="btn-png-1080">Export PNG · 1080</button>
+      <button class="btn" id="btn-svg">Export SVG</button>
+      <button class="btn ghost" id="btn-reset">Reset</button>
+    </div>
+
+    <div class="status" id="status">Ready. Customize controls and export.</div>
+
+  </main>
+</div>
+
+<script>
+//
+// ---------- Palette + composition tables ----------
+//
+const PALETTES = {
+  ink:    { field: '#000000', type: '#F5F0EB', accent: '#C84B2F', band: '#1A1A1A', meta: 'rgba(245,240,235,0.7)' },
+  red:    { field: '#C84B2F', type: '#F5F0EB', accent: '#000000', band: '#A23A22', meta: 'rgba(245,240,235,0.85)' },
+  atlas:  { field: '#0E4F58', type: '#F5F0EB', accent: '#C84B2F', band: '#0A3A41', meta: 'rgba(245,240,235,0.75)' },
+  warm:   { field: '#F5F0EB', type: '#000000', accent: '#C84B2F', band: '#F2EDE5', meta: 'rgba(0,0,0,0.6)' }
+};
+
+const state = {
+  title: 'GROUNDHOGG',
+  tagline: '',
+  serialNum: '0042',
+  serialCat: 'CASE STUDY',
+  serialMod: 'STEREO',
+  palette: 'ink',
+  wordmark: 'bold',
+  imagery: 'opart',
+  uploadDataUrl: null,
+  footerOn: false,
+  sidemen: '',
+  credits: `PRODUCED BY · LONE ROCK POINT
+DESIGN · STUDIO TEAM
+STRATEGY · BRAND COUNCIL
+STACK · WORDPRESS · REACT
+SECTOR · PUBLIC INFRA
+DURATION · 18 WEEKS
+YEAR · 2026
+LOCATION · BURLINGTON, VT`
+};
+
+//
+// ---------- Bind controls ----------
+//
+function bind(id, key, parse = (v) => v) {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { state[key] = parse(el.value); render(); });
+}
+bind('f-title', 'title');
+bind('f-tagline', 'tagline');
+bind('f-serial-num', 'serialNum');
+bind('f-serial-cat', 'serialCat');
+bind('f-serial-mod', 'serialMod');
+bind('f-sidemen', 'sidemen');
+
+document.querySelectorAll('input[name="palette"]').forEach(r => {
+  r.addEventListener('change', () => { state.palette = r.value; render(); });
+});
+document.querySelectorAll('input[name="wordmark"]').forEach(r => {
+  r.addEventListener('change', () => { state.wordmark = r.value; render(); });
+});
+const IMAGERY_HELP = {
+  opart:          'Op-Art Checkerboard — Sam Rivers / Reid Miles register. Two flat colors in a dense grid.',
+  halftone:       'Halftone Gradient — concentric dot pattern, dots largest at center.',
+  silhouette:     'Silhouette — single abstract figure ranged left, accent block ranged right. Reid Miles register.',
+  solid:          'Solid Field — the field color shows through. Use when the wordmark is doing all the work.',
+  upload:         'Upload Image — your image fills the artwork zone, cropped to fit.',
+  arrow:          'Arrow Mark — the LRP arrow as the artwork. 1970s travel poster register.',
+  'duotone-photo':'Duotone Photo — upload a photograph and it gets auto-converted to a two-color duotone in the palette colors. Ink Classic palette gives black + accent shadow/highlight.',
+  'credit-grid':  'Credit Grid — typographic credits as the artwork. Mid-century poster register, dense and structural. Edit the credits in the field below.',
+  'type-as-art':  'Type-as-Art — the project name BECOMES the artwork at maximum size. Reid Miles register (think "GO" by Dexter Gordon). Hides the small wordmark zone.',
+  concentric:     'Concentric Circles — three to five rings ranged left. The LRP geometric language.',
+  diagonal:       'Diagonal Bands — three diagonal stripes crossing the artwork. Saul Bass register.',
+  rays:           'Radiating Rays — thin lines emanating from a corner. Monaco GP / 1970s travel poster register.'
+};
+document.querySelectorAll('input[name="imagery"]').forEach(r => {
+  r.addEventListener('change', () => {
+    state.imagery = r.value;
+    const showUpload = (r.value === 'upload' || r.value === 'duotone-photo');
+    const showCredits = (r.value === 'credit-grid');
+    document.getElementById('upload-field').style.display = showUpload ? 'block' : 'none';
+    document.getElementById('credits-field').style.display = showCredits ? 'block' : 'none';
+    document.getElementById('imagery-help').textContent = IMAGERY_HELP[r.value] || '';
+    render();
+  });
+});
+bind('f-credits', 'credits');
+document.getElementById('f-upload').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { state.uploadDataUrl = reader.result; render(); };
+  reader.readAsDataURL(file);
+});
+document.getElementById('f-footer-on').addEventListener('change', (e) => {
+  state.footerOn = e.target.checked;
+  document.getElementById('footer-field').style.display = e.target.checked ? 'block' : 'none';
+  render();
+});
+
+//
+// ---------- Imagery treatments (SVG fragments) ----------
+//
+function imageryArtwork(palette, imagery) {
+  // Returns SVG inner content for the artwork zone (a 2400x1600 area centered)
+  // Coords: zone is 0..2400 wide, 480..2080 tall (above footer band if any)
+  const fg = palette.type;
+  const accent = palette.accent;
+  const field = palette.field;
+
+  if (imagery === 'opart') {
+    // Checkerboard with two colors. Use accent + a darker variant of field.
+    const a = accent;
+    const b = field === '#000000' ? '#1A1A1A' : (field === '#C84B2F' ? '#000000' : (field === '#0E4F58' ? '#000000' : '#1A1A1A'));
+    let cells = '';
+    const cols = 14, rows = 9;
+    const w = 2400 / cols, h = 1600 / rows;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const fill = ((r + c) % 2 === 0) ? a : b;
+        cells += `<rect x="${c*w}" y="${480 + r*h}" width="${w+1}" height="${h+1}" fill="${fill}"/>`;
+      }
+    }
+    return cells;
+  }
+
+  if (imagery === 'halftone') {
+    // Halftone radial gradient — circles in a grid, sized by distance from center.
+    let dots = '';
+    const cols = 24, rows = 16;
+    const w = 2400 / cols, h = 1600 / rows;
+    const cx = 2400 / 2, cy = 480 + 1600 / 2;
+    const maxD = Math.sqrt(cx*cx + (1600/2)*(1600/2));
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = c*w + w/2;
+        const y = 480 + r*h + h/2;
+        const d = Math.sqrt((x-cx)*(x-cx) + (y-cy)*(y-cy));
+        const ratio = 1 - (d / maxD); // 1 at center, 0 at edge
+        const radius = Math.max(2, ratio * (Math.min(w, h) / 2.2));
+        dots += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${accent}"/>`;
+      }
+    }
+    return dots;
+  }
+
+  if (imagery === 'silhouette') {
+    // Generic abstract silhouette (figure with arms/torso) — Reid Miles register.
+    // A single shape in accent, ranged left, with a second smaller shape in fg.
+    return `
+      <g transform="translate(0, 480)">
+        <!-- Accent block backdrop, ranged right -->
+        <rect x="1300" y="0" width="1100" height="1600" fill="${accent}" />
+        <!-- Figure silhouette in field color, ranged left -->
+        <g fill="${fg}" transform="translate(380, 200)">
+          <!-- Head -->
+          <circle cx="320" cy="220" r="180"/>
+          <!-- Torso -->
+          <path d="M 90 460 Q 320 380 550 460 L 600 1100 Q 600 1180 520 1200 L 120 1200 Q 40 1180 40 1100 Z"/>
+          <!-- Arm raised (suggesting motion) -->
+          <path d="M 480 480 L 760 360 L 800 420 L 540 580 Z"/>
+        </g>
+        <!-- Tiny accent square as Reid Miles signature corner -->
+        <rect x="1820" y="100" width="80" height="80" fill="${fg}" opacity="0.9"/>
+      </g>
+    `;
+  }
+
+  if (imagery === 'solid') {
+    return ''; // Field color shows through
+  }
+
+  if (imagery === 'arrow') {
+    // The LRP arrow as the artwork. Massive, angled, ranged center.
+    const arrowColor = accent;
+    return `
+      <g transform="translate(1200, 1280) rotate(-8)">
+        <g fill="${arrowColor}" transform="translate(-700, -180)">
+          <!-- Shaft -->
+          <rect x="0" y="100" width="1000" height="160"/>
+          <!-- Arrowhead -->
+          <polygon points="900,0 1400,180 900,360"/>
+        </g>
+      </g>
+    `;
+  }
+
+  if (imagery === 'upload' && state.uploadDataUrl) {
+    // Embed user-uploaded image, fill zone
+    return `
+      <defs>
+        <clipPath id="artClip"><rect x="0" y="480" width="2400" height="1600"/></clipPath>
+      </defs>
+      <image href="${state.uploadDataUrl}"
+             x="0" y="480" width="2400" height="1600"
+             preserveAspectRatio="xMidYMid slice"
+             clip-path="url(#artClip)"/>
+    `;
+  }
+  if (imagery === 'upload') {
+    // Placeholder
+    return `
+      <rect x="200" y="680" width="2000" height="1200" fill="${field}" stroke="${fg}" stroke-width="3" stroke-dasharray="20 20" opacity="0.4"/>
+      <text x="1200" y="1300" text-anchor="middle" font-family="Inter, sans-serif" font-weight="500" font-size="56" fill="${fg}" opacity="0.6">Upload an image →</text>
+    `;
+  }
+
+  if (imagery === 'duotone-photo') {
+    // Upload + auto duotone via SVG filter. Maps grayscale -> shadow color (field) to highlight color (accent).
+    if (!state.uploadDataUrl) {
+      return `
+        <rect x="200" y="680" width="2000" height="1200" fill="${field}" stroke="${accent}" stroke-width="3" stroke-dasharray="20 20" opacity="0.4"/>
+        <text x="1200" y="1280" text-anchor="middle" font-family="Inter, sans-serif" font-weight="500" font-size="56" fill="${accent}" opacity="0.7">Upload a photograph</text>
+        <text x="1200" y="1360" text-anchor="middle" font-family="Inter, sans-serif" font-weight="400" font-size="36" fill="${fg}" opacity="0.55">It will be auto-duotoned in palette colors</text>
+      `;
+    }
+    // Build feComponentTransfer table values from accent + field
+    const shadow = hexToRgb(field);
+    const highlight = hexToRgb(accent);
+    // Make highlight much brighter so the duotone has range
+    const high = lightenRgb(highlight, 0.25);
+    const shad = darkenRgb(shadow, 0.10);
+    const filterId = `dt${Math.random().toString(36).slice(2,8)}`;
+    return `
+      <defs>
+        <filter id="${filterId}" color-interpolation-filters="sRGB">
+          <!-- Convert to grayscale -->
+          <feColorMatrix type="matrix" values="
+            0.30 0.59 0.11 0 0
+            0.30 0.59 0.11 0 0
+            0.30 0.59 0.11 0 0
+            0    0    0    1 0"/>
+          <!-- Map grayscale to two-color duotone -->
+          <feComponentTransfer>
+            <feFuncR tableValues="${shad.r/255} ${high.r/255}"/>
+            <feFuncG tableValues="${shad.g/255} ${high.g/255}"/>
+            <feFuncB tableValues="${shad.b/255} ${high.b/255}"/>
+          </feComponentTransfer>
+        </filter>
+        <pattern id="grain" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+          <rect width="4" height="4" fill="${field}" fill-opacity="0"/>
+          <circle cx="1" cy="1" r="0.5" fill="${fg}" fill-opacity="0.18"/>
+          <circle cx="3" cy="3" r="0.5" fill="${fg}" fill-opacity="0.10"/>
+        </pattern>
+        <clipPath id="artClip"><rect x="0" y="480" width="2400" height="1600"/></clipPath>
+      </defs>
+      <image href="${state.uploadDataUrl}"
+             x="0" y="480" width="2400" height="1600"
+             preserveAspectRatio="xMidYMid slice"
+             clip-path="url(#artClip)"
+             filter="url(#${filterId})"/>
+      <rect x="0" y="480" width="2400" height="1600" fill="url(#grain)" opacity="0.35"/>
+    `;
+  }
+
+  if (imagery === 'credit-grid') {
+    // Two-column tracked uppercase credit list. Mid-century poster register.
+    const lines = (state.credits || '').split('\n').map(s => s.trim()).filter(Boolean).slice(0, 12);
+    const padX = 200;
+    const startY = 700;
+    const lineH = 100;
+    const colW = (2400 - padX * 2) / 2;
+    const labelColor = accent;
+    const valueColor = fg;
+    const items = lines.map((line, i) => {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = padX + col * colW;
+      const y = startY + row * lineH;
+      const parts = line.split('·').map(p => p.trim());
+      const label = parts[0] || '';
+      const value = parts.slice(1).join(' · ') || '';
+      return `
+        <g transform="translate(${x}, ${y})">
+          <text x="0" y="0" font-family="Inter, sans-serif" font-weight="600" font-size="22" letter-spacing="3" fill="${labelColor}">${escape(label)}</text>
+          <text x="0" y="46" font-family="Inter, sans-serif" font-weight="500" font-size="34" letter-spacing="1.5" fill="${valueColor}">${escape(value)}</text>
+          <line x1="0" y1="76" x2="${colW - 60}" y2="76" stroke="${fg}" stroke-opacity="0.18" stroke-width="1"/>
+        </g>
+      `;
+    }).join('');
+    return items;
+  }
+
+  if (imagery === 'type-as-art') {
+    // Project name fills the artwork zone — Reid Miles "GO" register.
+    // Break title across multiple lines, color one chunk in accent.
+    const t = (state.title || '').toUpperCase();
+    const words = t.split(/\s+/).filter(Boolean);
+    let lines;
+    if (words.length === 1) {
+      // Single long word — break in half
+      const mid = Math.ceil(words[0].length / 2);
+      lines = [words[0].slice(0, mid), words[0].slice(mid)];
+    } else {
+      // Multi-word — break per word, max 3 lines
+      lines = words.slice(0, 3);
+    }
+    // Find longest line to size by
+    const maxChars = Math.max(...lines.map(l => l.length));
+    const fontSize = Math.min(720, Math.floor(2200 / Math.max(maxChars * 0.55, 3)));
+    const lineH = fontSize * 0.92;
+    const totalH = lines.length * lineH;
+    const startY = 480 + (1600 - totalH) / 2 + lineH * 0.85;
+    const accentLineIdx = lines.length - 1; // last line in accent
+    const out = lines.map((line, i) => {
+      const color = (i === accentLineIdx) ? accent : fg;
+      const y = startY + i * lineH;
+      return `<text x="200" y="${y}"
+                font-family="Oswald, 'Barlow Condensed', sans-serif"
+                font-weight="700"
+                font-size="${fontSize}"
+                letter-spacing="-${Math.round(fontSize * 0.025)}"
+                fill="${color}">${escape(line)}</text>`;
+    }).join('');
+    return out;
+  }
+
+  if (imagery === 'concentric') {
+    // Five concentric circles, ranged left, descending size — LRP geometric language
+    const cx = 600;
+    const cy = 1280;
+    const radii = [600, 460, 320, 200, 100];
+    return radii.map((r, i) => {
+      const isAccent = (i === 1 || i === 3);
+      const stroke = isAccent ? accent : fg;
+      return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${stroke}" stroke-width="${i === 0 ? 6 : 4}" stroke-opacity="${i === 0 ? 0.85 : 0.95}"/>`;
+    }).join('') + `<circle cx="${cx}" cy="${cy}" r="40" fill="${accent}"/>`;
+  }
+
+  if (imagery === 'diagonal') {
+    // Three diagonal stripes — Saul Bass register
+    const stripes = [
+      { c: accent,    yOff: -300, h: 320 },
+      { c: fg,        yOff:  100, h: 240, opacity: 0.95 },
+      { c: accent,    yOff:  500, h: 180 }
+    ];
+    return stripes.map(s => `
+      <g transform="translate(0, ${480 + s.yOff}) rotate(-12, 1200, ${s.h/2})">
+        <rect x="-400" y="0" width="3200" height="${s.h}" fill="${s.c}" opacity="${s.opacity || 1}"/>
+      </g>
+    `).join('') + `
+      <!-- Small accent square top-right, Bass signature touch -->
+      <rect x="2080" y="600" width="120" height="120" fill="${fg === field ? accent : fg}"/>
+    `;
+  }
+
+  if (imagery === 'rays') {
+    // Radiating rays from bottom-right — 1970s travel poster (Monaco GP)
+    const cx = 2200;
+    const cy = 2080;
+    const rayCount = 18;
+    const innerR = 120;
+    const outerR = 2800;
+    let rays = '';
+    for (let i = 0; i < rayCount; i++) {
+      const angle = (Math.PI / 2) - (Math.PI * (i / (rayCount - 1)) * 0.85); // sweep upward and left
+      const x1 = cx + Math.cos(angle) * innerR;
+      const y1 = cy - Math.sin(angle) * innerR;
+      const x2 = cx + Math.cos(angle) * outerR;
+      const y2 = cy - Math.sin(angle) * outerR;
+      const color = (i % 3 === 0) ? accent : fg;
+      const opacity = (i % 2 === 0) ? 0.85 : 0.4;
+      const width = (i % 4 === 0) ? 14 : 6;
+      rays += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}" stroke-opacity="${opacity}" stroke-linecap="round"/>`;
+    }
+    // Sun disc at the origin
+    rays += `<circle cx="${cx}" cy="${cy}" r="${innerR - 20}" fill="${accent}"/>`;
+    return rays;
+  }
+
+  return '';
+}
+
+// ---------- Color helpers (used by duotone filter) ----------
+function hexToRgb(hex) {
+  const m = hex.replace('#','').match(/.{2}/g);
+  return { r: parseInt(m[0],16), g: parseInt(m[1],16), b: parseInt(m[2],16) };
+}
+function lightenRgb(c, amt) {
+  return { r: Math.min(255, c.r + (255-c.r)*amt), g: Math.min(255, c.g + (255-c.g)*amt), b: Math.min(255, c.b + (255-c.b)*amt) };
+}
+function darkenRgb(c, amt) {
+  return { r: c.r * (1-amt), g: c.g * (1-amt), b: c.b * (1-amt) };
+}
+
+//
+// ---------- Wordmark renderers ----------
+//
+function escape(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function wordmark(palette, style) {
+  // When the artwork is type-as-art, the project name is already the artwork. Skip the small wordmark.
+  if (state.imagery === 'type-as-art') return '';
+  // When credit-grid is the artwork, keep the wordmark — it anchors the cover.
+  const t = escape(state.title || '');
+  const tag = escape(state.tagline || '');
+  const fg = palette.type;
+  const ax = 120;     // anchor x — left margin
+  const ay = 380;     // baseline of wordmark in header band
+
+  if (style === 'bold') {
+    // Oswald 700, all-caps, large, ranged left.
+    return `
+      <text x="${ax}" y="${ay}"
+            font-family="Oswald, 'Barlow Condensed', sans-serif"
+            font-weight="700"
+            font-size="280"
+            letter-spacing="-4"
+            text-transform="uppercase"
+            fill="${fg}">${t.toUpperCase()}</text>
+    `;
+  }
+
+  if (style === 'serif') {
+    // DM Serif Display
+    return `
+      <text x="${ax}" y="${ay}"
+            font-family="'DM Serif Display', Georgia, serif"
+            font-weight="400"
+            font-size="240"
+            letter-spacing="-6"
+            fill="${fg}">${t}</text>
+    `;
+  }
+
+  if (style === 'split') {
+    // Two-tone: project name in Oswald, tagline in Inter italic below
+    return `
+      <text x="${ax}" y="320"
+            font-family="Oswald, 'Barlow Condensed', sans-serif"
+            font-weight="700"
+            font-size="240"
+            letter-spacing="-4"
+            fill="${fg}">${t.toUpperCase()}</text>
+      <text x="${ax}" y="430"
+            font-family="Inter, sans-serif"
+            font-style="italic"
+            font-weight="500"
+            font-size="64"
+            letter-spacing="0.5"
+            fill="${palette.accent}">${tag}</text>
+    `;
+  }
+  return '';
+}
+
+//
+// ---------- Serial number block (top right) ----------
+//
+function serialBlock(palette) {
+  const fg = palette.type;
+  const x = 2280; // right anchor
+  const lh = 70;
+  return `
+    <g text-anchor="end" font-family="Inter, sans-serif" font-weight="600" font-size="48" letter-spacing="3" fill="${fg}">
+      <text x="${x}" y="180">LRP ${escape(state.serialNum)}</text>
+      <text x="${x}" y="${180 + lh}">${escape(state.serialCat)}</text>
+      <text x="${x}" y="${180 + lh*2}">${escape(state.serialMod)}</text>
+    </g>
+  `;
+}
+
+//
+// ---------- Footer band ----------
+//
+function footerBand(palette) {
+  if (!state.footerOn) return '';
+  const fg = palette.type;
+  const meta = palette.meta;
+  const lines = (state.sidemen || '').split('\n').map(s => s.trim()).filter(Boolean).slice(0, 6);
+  const startY = 2200;
+  let body = `<rect x="0" y="2080" width="2400" height="320" fill="${palette.band}"/>`;
+  // Two-column layout
+  const colWidth = (2400 - 240) / 2; // padded
+  const items = lines.map((line, i) => {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const x = 120 + col * colWidth;
+    const y = startY + row * 60;
+    return `<text x="${x}" y="${y}" font-family="Inter, sans-serif" font-weight="500" font-size="36" letter-spacing="2" fill="${fg}">${escape(line)}</text>`;
+  }).join('');
+  return body + items;
+}
+
+//
+// ---------- Master render ----------
+//
+function render() {
+  const p = PALETTES[state.palette];
+  const svg = document.getElementById('cover');
+  svg.setAttribute('viewBox', '0 0 2400 2400');
+  svg.innerHTML = `
+    <!-- Field -->
+    <rect width="2400" height="2400" fill="${p.field}"/>
+
+    <!-- Artwork zone -->
+    ${imageryArtwork(p, state.imagery)}
+
+    <!-- Wordmark -->
+    ${wordmark(p, state.wordmark)}
+
+    <!-- Serial number -->
+    ${serialBlock(p)}
+
+    <!-- Footer band -->
+    ${footerBand(p)}
+
+    <!-- Hairline border for warm field cover so it reads as an artifact -->
+    ${state.palette === 'warm'
+      ? `<rect x="3" y="3" width="2394" height="2394" fill="none" stroke="${p.accent}" stroke-opacity="0.15" stroke-width="6"/>`
+      : ''}
+  `;
+}
+
+//
+// ---------- Reset ----------
+//
+const defaults = JSON.parse(JSON.stringify(state));
+document.getElementById('btn-reset').addEventListener('click', () => {
+  Object.assign(state, defaults);
+  document.getElementById('f-title').value = state.title;
+  document.getElementById('f-tagline').value = state.tagline;
+  document.getElementById('f-serial-num').value = state.serialNum;
+  document.getElementById('f-serial-cat').value = state.serialCat;
+  document.getElementById('f-serial-mod').value = state.serialMod;
+  document.querySelector('input[name="palette"][value="' + state.palette + '"]').checked = true;
+  document.querySelector('input[name="wordmark"][value="' + state.wordmark + '"]').checked = true;
+  document.querySelector('input[name="imagery"][value="' + state.imagery + '"]').checked = true;
+  document.getElementById('f-footer-on').checked = state.footerOn;
+  document.getElementById('upload-field').style.display = 'none';
+  document.getElementById('credits-field').style.display = 'none';
+  document.getElementById('footer-field').style.display = 'none';
+  document.getElementById('f-credits').value = state.credits;
+  document.getElementById('imagery-help').textContent = IMAGERY_HELP[state.imagery] || '';
+  render();
+  setStatus('Reset to defaults.', false);
+});
+
+//
+// ---------- Status ----------
+//
+function setStatus(msg, isError = false) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.classList.toggle('error', isError);
+}
+
+//
+// ---------- Font embedding for export ----------
+// Fetch Google Fonts CSS, extract WOFF2 URLs, fetch fonts as data URLs,
+// build inline @font-face block to inject into exported SVG.
+//
+let cachedFontStyle = null;
+async function getEmbeddedFontStyle() {
+  if (cachedFontStyle) return cachedFontStyle;
+  setStatus('Embedding fonts (one-time fetch)…');
+
+  const families = [
+    'https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap',
+    'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap'
+  ];
+  const blocks = await Promise.all(families.map(async (url) => {
+    const cssRes = await fetch(url, {
+      headers: {
+        // Hint Google to send WOFF2
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+      }
+    });
+    let css = await cssRes.text();
+    // Find all url(...) inside this CSS, fetch and base64.
+    const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(m => m[1].replace(/['"]/g, ''));
+    const replacements = await Promise.all(urls.map(async (u) => {
+      try {
+        const r = await fetch(u);
+        const b = await r.blob();
+        const dataUrl = await new Promise((res) => {
+          const fr = new FileReader();
+          fr.onload = () => res(fr.result);
+          fr.readAsDataURL(b);
+        });
+        return [u, dataUrl];
+      } catch (e) {
+        return [u, null];
+      }
+    }));
+    for (const [orig, dataUrl] of replacements) {
+      if (dataUrl) css = css.split(orig).join(dataUrl);
+    }
+    return css;
+  }));
+  cachedFontStyle = blocks.join('\n');
+  return cachedFontStyle;
+}
+
+//
+// ---------- Build a standalone, font-embedded SVG string ----------
+//
+async function buildStandaloneSVG() {
+  const fontCss = await getEmbeddedFontStyle();
+  const svg = document.getElementById('cover');
+  const clone = svg.cloneNode(true);
+  // Inject defs > style with embedded fonts
+  const defs = `
+    <defs>
+      <style type="text/css"><![CDATA[
+        ${fontCss}
+      ]]></style>
+    </defs>
+  `;
+  // Insert defs as first child
+  let inner = clone.innerHTML;
+  clone.innerHTML = defs + inner;
+  // Add xmlns
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+  return new XMLSerializer().serializeToString(clone);
+}
+
+//
+// ---------- Export PNG ----------
+//
+async function exportPNG(size) {
+  try {
+    const svgString = await buildStandaloneSVG();
+    setStatus('Rasterizing…');
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((b) => {
+        const filename = filenameForExport(`png-${size}`);
+        download(b, `${filename}.png`);
+        setStatus(`Exported ${filename}.png at ${size}×${size}.`);
+      }, 'image/png');
+    };
+    img.onerror = (e) => {
+      console.error(e);
+      setStatus('PNG export failed. Try SVG export instead, or check the browser console.', true);
+    };
+    img.src = url;
+  } catch (e) {
+    console.error(e);
+    setStatus('Export failed: ' + e.message, true);
+  }
+}
+
+//
+// ---------- Export SVG ----------
+//
+async function exportSVG() {
+  try {
+    const svgString = await buildStandaloneSVG();
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const filename = filenameForExport('svg');
+    download(blob, `${filename}.svg`);
+    setStatus(`Exported ${filename}.svg`);
+  } catch (e) {
+    console.error(e);
+    setStatus('Export failed: ' + e.message, true);
+  }
+}
+
+function filenameForExport(suffix) {
+  const slug = (state.title || 'cover').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `lrp-${state.serialNum}-${slug}-${suffix}`;
+}
+
+function download(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+document.getElementById('btn-png-2400').addEventListener('click', () => exportPNG(2400));
+document.getElementById('btn-png-1080').addEventListener('click', () => exportPNG(1080));
+document.getElementById('btn-svg').addEventListener('click', exportSVG);
+
+//
+// ---------- Initial render ----------
+//
+document.fonts.ready.then(() => render());
+render();
+</script>
+
+</body>
+</html>
